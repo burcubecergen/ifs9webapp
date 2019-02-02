@@ -1,0 +1,132 @@
+﻿@model RequestViewModel
+@{
+    ViewData["Title"] = "QuotationBlanket";
+    Layout = "~/Views/Shared/_Layout_Second.cshtml";
+}
+
+<script src="~/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+
+<div class="container top_sizec">
+
+
+    <div class="row top_sizec">
+        <div class="col-sm-offset-3 col-lg-offset-3 col-md-offset-3">
+            <h3 class="h3_bold h3_left  quotation_right">
+                ANLAŞMA TEKLİFİ
+            </h3>
+            <p id="id" class="p_display">@ViewBag.id</p>
+            <p id="notnullcompanycell" class="p_display">@ViewBag.notnullcount</p>
+        </div>
+    </div>
+    <form asp-action="Ifs" method="get">
+
+        <input value="true" type="hidden" asp-for="RedirectToIfs" />
+    </form>
+    @if (ViewBag.list != null)
+    {
+
+        <div class="row top_sizec">
+            <table id="tableshow" class="table_qutation">
+                <tr>
+                    <th style="width:20%;">Malzeme Kodu</th>
+                    <th style="width:5%;">Birim</th>
+                    <th style="width:5%;">Miktar</th>
+                    <th id="firma1" style="width:12.5%;">Firma 1</th>
+                    <th id="firma2" style="width:12.5%;">Firma 2</th>
+                    <th id="firma3" style="width:12.5%;">Firma 3</th>
+                    <th id="firma4" style="width:12.5%;">Firma 4</th>
+                    <th id="firma5" style="width:12.5%;">Firma 5</th>
+                    <th id="firma6" style="width:12.5%;">Firma 6</th>
+                </tr>
+                @foreach (var item in ViewBag.list)
+                {
+                    <tr>
+                        <td style="width:20%;">@item.PartNo</td>
+                        <td style="width:5%;">@item.Quantity</td>
+                        <td style="width:5%;">@item.UnitMeas</td>
+                        <td class="company1" style="width:12.5%;">@item.CompanyOne</td>
+                        <td class="company2" style="width:12.5%;">@item.CompanyTwo</td>
+                        <td class="company3" style="width:12.5%;">@item.CompanyThree</td>
+                        <td class="company4" style="width:12.5%;">@item.CompanyFour</td>
+                        <td class="company5" style="width:12.5%;">@item.CompanyFive</td>
+                        <td class="company6" style="width:12.5%;">@item.CompanySix</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    }
+    <div class="row top_sizec">
+        <div class="col-sm-4 col-md-3 col-lg-3">
+            <select id="combobox1" class="combobox comb_size form-control ">
+                @foreach (var item in ViewBag.dropdownList)
+                {
+                    <option value="@item.VendorNo">@item.SuppName</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-8 col-md-9 col-lg-9 top_size_btn">
+            <input id="btnsuccess" type="button" class="btn btn-success " value="Onayla" />
+            <input id="btnerror" type="button" class="btn btn-danger error_btn_left " value="Revize Et" />
+        </div>
+    </div>
+    <div class="row top_sizec">
+        <div class="col-xs-12 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
+            <h3 id="h3show" class="p_color"></h3>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            var notnullcompanycell = document.getElementById('notnullcompanycell').innerHTML;
+            var nontablecell = 6 - notnullcompanycell;
+            var alltablecellsize = nontablecell * 12.5;
+            var tablecellsize = alltablecellsize / notnullcompanycell + 12.5;
+
+
+            for (var i = 1; i <= 6; i++) {
+                if (i <= notnullcompanycell) {
+                    $(".company" + i).width(tablecellsize);
+                    $("#firma" + i).width(tablecellsize);
+                }
+                else {
+                    //document.getElementById().style.display = "none";
+                    $('.company' + i).css({ "display": "none" });
+                    document.getElementById('firma' + i).style.display = "none";
+                }
+            }
+
+        });
+
+
+        $('#btnsuccess, #btnerror').click(function () {
+            var id = document.getElementById('id').innerHTML;
+            var selected = $("#combobox1 option:selected").val();
+            var success = true;
+            var text = id + " " + "nolu anlaşma teklifiniz onaylanmıştır. Lütfen bekleyiniz..";
+
+            if (this.id == 'btnerror') {
+                success = false;
+                text = id + " " + "nolu satınalma teklifiniz revize edilmiştir. Lütfen bekleyiniz..";
+            }
+
+            $.ajax({
+                data: { id: id, selected: selected, success: success },
+                url: '/Home/QuotationBlanket/',
+                type: "POST",
+                cache: false,
+                success: function (data) {
+                    if (data == "success") {
+                        document.getElementById('tableshow').style.display = 'none';
+                        document.getElementById('btnsuccess').style.display = 'none';
+                        document.getElementById('btnerror').style.display = 'none';
+                        document.getElementById('combobox1').style.display = 'none';
+                        document.getElementById('h3show').innerHTML = text;
+                        document.getElementById('h3show').style.display = 'block';
+                        setTimeout(function () {
+                            $("form").submit();
+                        }, 2000);
+                    }
+                },
+            });
+        });
+    </script>
+</div>

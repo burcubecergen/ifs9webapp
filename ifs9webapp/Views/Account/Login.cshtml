@@ -1,0 +1,60 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+
+<div class="container top_sizec">
+
+    <div class="row top_sizec">
+        <div class="col-sm-offset-3 col-lg-offset-3 col-md-offset-3 col-xs-offset-2">
+            <h3 class="h3_bold">CCN IFS PORTALI</h3>
+        </div>
+    </div>
+
+    <div class="row top_sizey">
+        <div class="col-sm-offset-2 col-lg-offset-2 col-md-offset-2 col-xs-offset-1 ">
+            <p class="p_fonttype">Ifs uygulamasında bulunan kullanıcı adı ve şifrenizi giriniz.</p>
+        </div>
+    </div>
+    <div class="row top_sizec">
+        <div class="col-xs-offset-3 col-md-offset-3 col-lg-offset-3 col-lg-9 col-md-9 col-sm-9 col-xs-9">
+            <p id="login_check" class="p_bold p_colorred">@ViewBag.error</p>
+        </div>
+    </div>
+    <form asp-controller="Account" asp-action="Login" method="post">
+
+        <div class="row top_sizec">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-4">
+                <p class="p_fonttype p_bold p_right p_position p_size">Kullanıcı Adı:</p>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-8">
+                <input asp-for="LoginName" class="form-control textbox_size" />
+            </div>
+        </div>
+
+        <div class="row top_sizec">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-4 ">
+                <p class="p_fonttype p_bold p_right p_position p_position_pass p_size">Parola:</p>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-8">
+                <input asp-for="Password" type="password" class="form-control textbox_size " />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-offset-4 col-md-offset-3 col-lg-offset-3  col-sm-offset-3 col-lg-9 col-md-9 col-sm-9 col-xs-9">
+                <input asp-for="RememberMe" type="checkbox" id="myCheck" onclick="myFunction()">
+                <p class="notification p_size" id="text">Beni Hatırla</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-offset-4 col-sm-offset-4 col-md-offset-4 col-lg-offset-4 col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                <button type="submit" class="btn btn-primary ">Giriş</button>
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+
+
+

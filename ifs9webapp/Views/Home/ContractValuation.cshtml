@@ -1,0 +1,78 @@
+﻿@model RequestViewModel
+@{
+    ViewData["Title"] = "ContractValuation";
+    Layout = "~/Views/Shared/_Layout_Second.cshtml";
+}
+
+<script src="~/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+
+<div class="container top_sizec">
+
+
+    <div class="row top_sizec">
+        <div class="col-sm-offset-2 col-lg-offset-2 col-md-offset-2">
+            <h3 class="h3_bold h3_left  quotation_right">
+               HAKEDİŞ BİLGİLERİ
+            </h3>
+            <p id="id" class="p_display">@ViewBag.id</p>
+            <p id="stepnoandlineno" class="p_display">@ViewBag.stepNoandLineNo</p>
+        </div>
+    </div>
+    <form asp-action="Ifs" method="get">
+        <input value="true" type="hidden" asp-for="RedirectToIfs" />
+    </form>
+    @if (ViewBag.list != null)
+    {
+        <div class="row top_sizec">
+            <div class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">
+                <table id="tableshow" class="table_design">
+                    <tr>
+                        <th style="width:50%;">Acıklama</th>
+                        <th style="width:50%;">Değer</th>
+                    </tr>
+                    @foreach (var item in ViewBag.list)
+                    {
+                        <tr>
+                            <td style="width:50%;">@item.Aciklama</td>
+                            <td style="width:50%">@item.Deger</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    }
+    <div class="row top_sizec">
+        <div class="col-xs-offset-1 col-sm-offset-1 col-md-offset-1 col-lg-offset-1">
+            <input  id="btnonay" type="button" class="btn btn-success " value="Onayla" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
+            <h3 id="h3show" class="p_color"></h3>
+        </div>
+    </div>
+    <script>
+        $('#btnonay').click(function () {
+            var id = document.getElementById('id').innerHTML;
+            var stepnoandlineno = document.getElementById('stepnoandlineno').innerHTML;
+            var text = id + " " + "nolu hakedişiniz onaylanmıştır. Lütfen bekleyiniz..";
+            $.ajax({
+                data: { id: id, stepnoandlineno: stepnoandlineno },
+                url: '/Home/ContractValuation/',
+                type: "POST",
+                cache: false,
+                success: function (data) {
+                    if (data == "success") {
+                        document.getElementById('tableshow').style.display = 'none';
+                        document.getElementById('btnonay').style.display = 'none';
+                        document.getElementById('h3show').innerHTML = text;
+                        document.getElementById('h3show').style.display = 'block';
+                        setTimeout(function () {
+                            $("form").submit();
+                        }, 2000);
+                    }
+                },
+            });
+        });
+    </script>
+</div>

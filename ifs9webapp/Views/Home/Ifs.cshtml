@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewData["Title"] = "Ifs";
+    Layout = "~/Views/Shared/_Layout_Second.cshtml";
+}
+
+<div class="container top_sizec">
+ 
+    <div class="row top_sizec">
+        <div class="col-xs-offest-3 col-sm-offset-2 col-lg-offset-3 col-md-offset-3">
+            <h3 class="h3_bold h3_left">
+                ONAY BEKLEYEN BELGELER
+            </h3>
+        </div>
+    </div>
+    @if(ViewBag.fill != 0) { 
+        <div class="row top_sizec">
+            <div class="col-xs-12 col-sm-offset-1 col-lg-offset-1 col-md-offset-1">
+                <table class="table_design">
+                    <tr>
+                        <th>Şirket</th>
+                        <th>Proje</th>
+                        <th>Belge Türü</th>
+                        <th>Belge No</th>
+                        <th>İlgili Kişi</th>
+                        <th>Belge Tarihi</th>
+                        <th></th>
+                    </tr>
+                    @foreach (var item in ViewBag.list)
+                    {
+                        if (item.BelgeTuru == "Malzeme Talebi")
+                        {
+                            <tr>
+                                <td style="width:15%">@item.Company</td>
+                                <td style="width:5%">@item.Site</td>
+                                <td style="width:20%">@item.BelgeTuru</td>
+                                <td style="width:15%">@item.BelgeNo</td>
+                                <td style="width:20%">@item.IlgiliKisi</td>
+                                <td style="width:10%">@item.BelgeTarihi</td>
+                                <td style="width:15%"><a href="~/Home/MaterialRequest/?id=@item.BelgeNo" class="btn btn-primary btn_left">Detay</a></td>@*button size control edilecek*@
+                            </tr>
+                        }
+                        else if (item.BelgeTuru == "Satinalma Talebi")
+                        {
+                            <tr>
+                                <td style="width:15%">@item.Company</td>
+                                <td style="width:5%">@item.Site</td>
+                                <td style="width:20%">@item.BelgeTuru</td>
+                                <td style="width:15%">@item.BelgeNo</td>
+                                <td style="width:20%">@item.IlgiliKisi</td>
+                                <td style="width:10%">@item.BelgeTarihi</td>
+                                <td style="width:15%"><a href="~/Home/PurchaseRequest/?id=@item.BelgeNo&company=@item.Company&autgid=@item.Aut" class="btn btn-primary btn_left">Detay</a></td>
+                            </tr>
+                        }
+                        else if (item.BelgeTuru == "Satinalma Teklifi")
+                        {
+                            <tr>
+                                <td style="width:15%">@item.Company</td>
+                                <td style="width:5%">@item.Site</td>
+                                <td style="width:20%">@item.BelgeTuru</td>
+                                <td style="width:15%">@item.BelgeNo</td>
+                                <td style="width:20%">@item.IlgiliKisi</td>
+                                <td style="width:10%">@item.BelgeTarihi</td>
+                                <td style="width:15%"><a href="~/Home/QuotationOrder/?id=@item.BelgeNo" class="btn btn-primary btn_left">Detay</a></td>
+                            </tr>
+                        }
+                        else if (item.BelgeTuru == "Satinalma Siparisi")
+                        {
+                            <tr>
+                                <td style="width:15%">@item.Company</td>
+                                <td style="width:5%">@item.Site</td>
+                                <td style="width:20%">@item.BelgeTuru</td>
+                                <td style="width:15%">@item.BelgeNo</td>
+                                <td style="width:20%">@item.IlgiliKisi</td>
+                                <td style="width:10%">@item.BelgeTarihi</td>
+                                <td style="width:15%"><a href="~/Home/PurchaseOrder/?id=@item.BelgeNo&company=@item.Company" class="btn btn-primary btn_left">Detay</a></td>
+                            </tr>
+                        }
+                        else if (item.BelgeTuru == "Anlaşma Teklifi")
+                        {
+                            <tr>
+                                <td style="width:15%">@item.Company</td>
+                                <td style="width:5%">@item.Site</td>
+                                <td style="width:20%">@item.BelgeTuru</td>
+                                <td style="width:15%">@item.BelgeNo</td>
+                                <td style="width:20%">@item.IlgiliKisi</td>
+                                <td style="width:10%">@item.BelgeTarihi</td>
+                                <td style="width:15%"><a href="~/Home/QuotationBlanket/?id=@item.BelgeNo" class="btn btn-primary btn_left">Detay</a></td>
+                            </tr>
+                        }
+                        else
+                        {  
+                            <tr>
+                                <td style="width:15%">@item.Company</td>
+                                <td style="width:5%">@item.Site</td>
+                                <td style="width:20%">@item.BelgeTuru</td>
+                                <td style="width:15%">@item.BelgeNo</td>
+                                <td style="width:20%">@item.IlgiliKisi</td>
+                                <td style="width:10%">@item.BelgeTarihi</td>
+                                <td style="width:15%"><a href="~/Home/ContractValuation/?id=@item.BelgeNo" class="btn btn-primary btn_left">Detay</a></td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+    }
+</div>

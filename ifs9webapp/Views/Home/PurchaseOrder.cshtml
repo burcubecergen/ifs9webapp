@@ -1,0 +1,94 @@
+﻿@model RequestViewModel
+@{
+    ViewData["Title"] = "PurchaseOrder";
+    Layout = "~/Views/Shared/_Layout_Second.cshtml";
+}
+
+<script src="~/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+
+<div class="container top_sizec">
+
+
+    <div class="row top_sizec">
+        <div class="col-xs-offset-1 col-sm-offset-2 col-lg-offset-2 col-md-offset-2">
+            <h3 class="h3_bold  h3_left purchase_left">
+                SATINALMA SİPARİŞİ
+            </h3>
+            <p id="id" class="p_display">@ViewBag.id</p>
+            <p id="company" class="p_display">@ViewBag.company</p>
+        </div>
+    </div>
+    <form asp-action="Ifs" method="get">
+        <input value="true" type="hidden" asp-for="RedirectToIfs" />
+    </form>
+    <div class="row top_sizec">
+        <table id="tableshow" class="second_design_table">
+            @if (ViewBag.list != null)
+            {
+                <tr>
+                    <th style="width:10%;">Malzeme Kodu</th>
+                    <th style="width:35%;">Malzeme Adı</th>
+                    <th style="width:10%;">Miktar</th>
+                    <th style="width:5%;">Birim</th>
+                    <th style="width:5%;">Birim Fiyat</th>
+                    <th style="width:10%;">Toplam Fiyat</th>
+                    <th style="width:25%;">Not</th>
+                </tr>
+
+                @foreach (var item in ViewBag.list)
+                {
+                    <tr>
+                        <td style="width:10%;">@item.PartNo</td>
+                        <td style="width:35%;">@item.Description</td>
+                        <td style="width:10%;">@item.BuyQtyDue</td>
+                        <td style="width:5%;">@item.BuyUnitMeas</td>
+                        <td style="width:5%;">@item.BuyUnitPrice</td>
+                        <td style="width:10%;">@item.TotalPrice</td>
+                        <td style="width:25%;">@item.NoteText</td>
+                        <td id="orderno" class="p_display">@item.OrderNo</td>
+                        <td id="sequenceno" class="p_display">@item.SequenceNo</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+    <div class="row top_sizec">
+        <div class="col-xs-offset-1 col-sm-offset-1 col-md-offset-1 col-lg-offset-1">
+            <input onclick="successPurchaseOrder()" id="btnonay" type="button" class="btn btn-success " value="Onayla" />
+        </div>
+    </div>
+    <div class="row top_sizec">
+        <div class="col-xs-12 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
+            <h3 id="h3show" class="p_color"></h3>
+        </div>
+    </div>
+
+    <script>
+        function successPurchaseOrder() {
+            var id = document.getElementById('id').innerHTML;
+            var company = document.getElementById('company').innerHTML;
+            var sequenceno = document.getElementById('sequenceno').innerHTML;
+        
+            var orderno = document.getElementById('orderno').innerHTML;
+            var text = orderno + " " + "nolu satınalma siparişi onaylanmıştır. Lütfen bekleyiniz.."
+            $.ajax({
+                data: { id: id, company: company, sequenceno: sequenceno },
+                url: '/Home/PurchaseOrder/',
+                type: "POST",
+                cache: false,
+                success: function (data) {
+                    if (data == "success") {
+                        document.getElementById('tableshow').style.display = 'none';
+                        document.getElementById('btnonay').style.display = 'none';
+                        document.getElementById('h3show').innerHTML = text;
+                        document.getElementById('h3show').style.display = 'block';
+                        setTimeout(function () {
+                            $("form").submit();
+                        }, 2000);
+                    }
+                },
+            });
+        }
+        
+    </script>
+</div>
