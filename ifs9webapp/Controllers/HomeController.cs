@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
-
+using System.Web.Script.Extensions;
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 //This site developed by Vahit Kuruosman,Gökhan Biçer and Halil Bozkurt
 namespace ifs9webapp.Controllers
@@ -28,6 +28,7 @@ namespace ifs9webapp.Controllers
         QuotationOrderAndBlanked qo;
         ContractValuation cv;
         PurchaseOrder po;
+
 
         string[] words = null;
         private List<Ifs> setTableIfsToList(Ifs pIfs, DataTable pTable)

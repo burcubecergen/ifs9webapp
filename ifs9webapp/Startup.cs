@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +25,7 @@ namespace ifs9webapp
             services.Configure<CookiePolicyOptions>(options =>
             {
 
-                options.CheckConsentNeeded = context => false;
+                options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -46,6 +48,7 @@ namespace ifs9webapp
                     .AddCookie(options =>
                     {
                         options.LoginPath = "/Account/Login/";
+                        options.LogoutPath = "/Account/Logout";
                     });
 
         }

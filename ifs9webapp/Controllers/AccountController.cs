@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
@@ -87,11 +88,11 @@ namespace ifs9webapp.Controllers
                 var rCon = openConnection(oracleConnection(loginName, lvm.Password));
                 if (rCon != null)
                 {
-                    var claims = new List<Claim>();
-                    {
-                        new Claim(ClaimTypes.Name, loginName);
+                   
+                    List<Claim> claims = new List<Claim>();
 
-                    };
+                    claims.Add(new Claim(ClaimTypes.Name, loginName));
+
                     var userIdentity = new ClaimsIdentity(claims, "login");
                     var userPrincipal = new ClaimsPrincipal(userIdentity);
 
