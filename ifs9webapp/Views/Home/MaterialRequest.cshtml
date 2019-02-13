@@ -94,6 +94,14 @@
                 }
             </table>
         </div>
+        <div class="row">
+            <div class="top_sizec">
+                <div class="col-lg-offset-7 col-md-offset-7 col-sm-offset-7 col-xs-offset-7">
+                    <input id="btnallonay" type="button" class="btn btn-success btn_left" value="Tümünü Onayla" />
+                </div>
+            </div>
+        </div>
+        
 
     }
     <div class="row top_sizec">
@@ -104,7 +112,7 @@
     <script>
         $(document).ready(function () {
 
-            $('#btnonay,#btnerror').click(function () {
+            $('#btnonay,#btnerror,#btnallonay').click(function () {
                 var count = 0;
                 var values = [];
                 var success = true;
@@ -161,7 +169,7 @@
                         });
                     });
                 }
-                else{
+                else if (this.id = 'btnonay') {
                     $.ajax({
                         data: {
                             orderno: values[10], lineno: values[11], releaseno: values[12], success: success,
@@ -194,6 +202,8 @@
 
                         },
                     });
+                }
+                else {
                 }
             });
         });

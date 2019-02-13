@@ -31,8 +31,8 @@ namespace ifs9webapp.Controllers
             string conString = "User Id="+pLoginName+";"+"Password="+pPassword+";"+
          //How to connect to an Oracle DB without SQL*Net configuration file
          //  also known as tnsnames.ora.
-       //"Data Source=10.6.12.100:1521/PROD";
-         "Data Source=10.6.11.102:1521/TEST";
+          //  "Data Source=10.6.12.100:1521/PROD";
+        "Data Source=10.6.11.102:1521/TEST";
             return conString;
         }
   

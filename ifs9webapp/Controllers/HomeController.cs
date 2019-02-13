@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
-using System.Web.Script.Extensions;
+
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 //This site developed by Vahit Kuruosman,Gökhan Biçer and Halil Bozkurt
 namespace ifs9webapp.Controllers
@@ -479,10 +479,10 @@ namespace ifs9webapp.Controllers
            "p10_ VARCHAR2(32000) := '';" +
            "p11_ VARCHAR2(32000) := '';" +
            "p12_ VARCHAR2(32000) := '';" +
-        "BEGIN " +
-        "   IFSAPP.Purch_Req_Approval_API.Authorize__( p4_ , p3_ , p5_ , p6_ , p7_ , p8_ , p9_ , p10_ , p11_ , p12_ );" +
-        "commit;" +
-        "END;";
+            "BEGIN " +
+            "   IFSAPP.Purch_Req_Approval_API.Authorize__( p4_ , p3_ , p5_ , p6_ , p7_ , p8_ , p9_ , p10_ , p11_ , p12_ );" +
+            "commit;" +
+            "END;";
 
             cmd.CommandText = OraApi;
 
