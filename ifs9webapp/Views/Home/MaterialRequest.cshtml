@@ -20,7 +20,8 @@
             <p id="pshow" class="p_bold p_colorred h3_left">Miktar talep edilen miktardan fazla olamaz.</p>
         </div>
     </div>
-    <input type="hidden" class="form-control textbox_sizepercent" value="@ViewBag.fill" id="listcount" />
+    <input id="listcount" type="hidden" class="form-control textbox_sizepercent" value="@ViewBag.fill" />
+    <p id="allsuccess" class="p_display">@ViewBag.allsuccess</p>
     <form asp-action="MaterialRequest" method="get">
         @if (ViewBag.fill != 1)
         {
@@ -39,7 +40,7 @@
                     <h4 class="modal-title">Red Notunuz</h4>
                 </div>
                 <div class="modal-body">
-                    <textarea id="rednote" rows="10"  style="width:100%;resize: none;overflow:hidden"></textarea>
+                    <textarea id="rednote" rows="10" style="width:100%;resize: none;overflow:hidden"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" style="float:left" data-dismiss="modal">Vazgeç</button>
@@ -81,15 +82,15 @@
                             <input id="btnerror" type="button" class="btn btn-danger error_btn_top" value="Reddet" />
 
                         </td>
-                        <td class="p_display">@item.OrderNo</td>
+                        <td id="orderno" class="p_display">@item.OrderNo</td>
                         <td class="p_display">@item.LineNo</td>
                         <td class="p_display">@item.ReleaseNo</td>
-                        <td class="p_display">@item.LineItemNo</td>
-                        <td class="p_display">@item.OrderClassDb</td>
-                        <td class="p_display">@item.Rule</td>
+                        <td id="lineitemno" class="p_display">@item.LineItemNo</td>
+                        <td id="orderclassdb" class="p_display">@item.OrderClassDb</td>
+                        <td id="rule" class="p_display">@item.Rule</td>
                         <td class="p_display">@item.Step</td>
-                        <td class="p_display">@item.ObjId</td>
-                        <td class="p_display">@item.ObjVersion</td>
+                        <td id="objid" class="p_display">@item.ObjId</td>
+                        <td id="objversion" class="p_display">@item.ObjVersion</td>
                     </tr>
                 }
             </table>
@@ -101,7 +102,7 @@
                 </div>
             </div>
         </div>
-        
+
 
     }
     <div class="row top_sizec">
@@ -116,9 +117,11 @@
                 var count = 0;
                 var values = [];
                 var success = true;
+                var allapprove = false;
 
                 var quantity = $(this).closest('tr').find('td').find('input').val();
                 var listcount = $('#listcount').val();
+                var allsuccess = document.getElementById('allsuccess').innerHTML;
                 $(this).closest('tr').find('td').each(function () {
                     var textval = $(this).text();
                     count++;
@@ -169,7 +172,10 @@
                         });
                     });
                 }
-                else if (this.id = 'btnonay') {
+                else if (this.id == 'btnonay') {
+
+                    var text = values[10] + " " + "nolu malzeme talebiniz onaylanmıştır. Lütfen bekleyiniz..";
+                    alert("error");
                     $.ajax({
                         data: {
                             orderno: values[10], lineno: values[11], releaseno: values[12], success: success,
@@ -203,9 +209,55 @@
                         },
                     });
                 }
-                else {
+                //dısardan onaylanacak veri girilecek
+                else if (this.id == 'btnallonay') {
+                   
+                    var orderno = document.getElementById('orderno').innerHTML;
+                    var lineitemno = document.getElementById('lineitemno').innerHTML;
+                    var orderclassdb = document.getElementById('orderclassdb').innerHTML;
+                    var rule = document.getElementById('rule').innerHTML;
+                    var text = orderno + " " + "nolu malzeme talebiniz onaylanmıştır. Lütfen bekleyiniz..";
+                    alert("good");
+                    $.ajax({
+                        data: {
+                            orderno: orderno, lineitemno: lineitemno, orderclassdb: orderclassdb,
+                            rule: rule, listcount: listcount, quantity: quantity, allsuccess: allsuccess,
+                            allapprove: true,
+                        },
+                        url: '/Home/MaterialRequest/',
+                        type: "POST",
+                        cache: false,
+                        success: function (data) {
+
+                            if (data == "success") {
+                                if (listcount != 1) {
+                                    $("form").submit();
+                                }
+                                else {
+                                    document.getElementById('tableshow').style.display = 'none';
+                                    document.getElementById('btnallonay').style.display = 'none';
+                                    document.getElementById('h3show').innerHTML = text;
+                                    document.getElementById('h3show').style.display = 'block';
+
+                                    setTimeout(function () {
+                                        $("form").submit();
+                                    }, 2000);
+
+                                }
+                            }
+                            else if (data == "error")
+                                document.getElementById('pshow').style.display = 'block';
+
+                        },
+                    });
                 }
             });
         });
     </script>
 </div>
+@*
+orderno: orderno, success: success, lineitemno: lineitemno,
+orderclassdb: orderclassdb, rule: rule, objid: objid,
+objversion: objversion, listcount: listcount, allsuccess: allsuccess,
+allapprove: true
+*@

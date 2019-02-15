@@ -25,7 +25,7 @@ namespace ifs9webapp
             services.Configure<CookiePolicyOptions>(options =>
             {
 
-                options.CheckConsentNeeded = context => false;
+                options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -37,20 +37,17 @@ namespace ifs9webapp
                 options.Cookie.Name = ".Fiver.Session";
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;*/
                 options.IdleTimeout = TimeSpan.FromMinutes(10);
-                options.Cookie.HttpOnly = true;
+               // options.Cookie.HttpOnly = true;
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddAuthentication(options =>{ options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                     .AddCookie(options =>
                     {
                         options.LoginPath = "/Account/Login/";
                         options.LogoutPath = "/Account/Logout";
                     });
-
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -64,12 +61,11 @@ namespace ifs9webapp
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-           
+
+            app.UseStaticFiles();
+            app.UseSession();
             app.UseAuthentication();
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-            app.UseSession();
 
 
 

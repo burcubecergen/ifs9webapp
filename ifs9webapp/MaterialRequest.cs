@@ -23,6 +23,7 @@ namespace ifs9webapp
         public string NoteText { get; set; }
         public string ObjId { get; set; }
         public string ObjVersion { get; set; }
+        public string AllSuccess { get; set; }
 
     }
 }

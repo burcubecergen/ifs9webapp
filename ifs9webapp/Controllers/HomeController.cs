@@ -16,10 +16,8 @@ namespace ifs9webapp.Controllers
     public class HomeController : Controller
     {
         AccountController ac;
-        OracleDataAdapter oda;
-        OracleDataAdapter oda_dropbox;
-        OracleCommand cmd;
-        OracleCommand new_cmd;
+        OracleDataAdapter oda, oda_dropbox;
+        OracleCommand cmd, new_cmd;
         DataSet ds;
 
         Ifs ifs;
@@ -60,9 +58,10 @@ namespace ifs9webapp.Controllers
                     OrderClassDb = Convert.ToString(pTable.Rows[i]["ORDER_CLASS_DB"]),Rule = Convert.ToString(pTable.Rows[i]["RULE"]),
                     Step = Convert.ToInt32(pTable.Rows[i]["STEP"]),ActivityAdi = Convert.ToString(pTable.Rows[i]["ACTIVITY_ADI"]),
                     Proje = Convert.ToString(pTable.Rows[i]["PROJE"]),NoteText = Convert.ToString(pTable.Rows[i]["NOTE_TEXT"]),
-                    ObjId = Convert.ToString(pTable.Rows[i]["OBJID"]),ObjVersion = Convert.ToString(pTable.Rows[i]["OBJVERSION"])
+                    ObjId = Convert.ToString(pTable.Rows[i]["OBJID"]),ObjVersion = Convert.ToString(pTable.Rows[i]["OBJVERSION"]),
                 });
                 ViewBag.orderno = Convert.ToString(pTable.Rows[i]["ORDER_NO"]);
+                ViewBag.allsuccess = Convert.ToString(pTable.Rows[0]["ALLSUCCESS"]);
             }
            
             
@@ -239,10 +238,12 @@ namespace ifs9webapp.Controllers
             mrl.order_no, mrl.line_no, mrl.release_no, mrl.line_item_no, mrl.order_class_db, p.rule, p.step,
             mrl.activity_seq || '-' || IFSAPP.activity_api.Get_Description(mrl.activity_seq) activity_adi,mrl.contract || '-' ||
             IFSAPP.activity_api.Get_Sub_Project_Id(mrl.activity_seq) || '-' || IFSAPP.activity_api.Get_Sub_Project_Description(mrl.activity_seq) proje,mrl.note_text,
-            p.objid,p.objversion from IFSAPP.material_requis_line mrl
+            p.objid,p.objversion, listagg(to_char(aa.release_no) || '/') within group(order by aa.order_no) || listagg(to_char(aa.step) || '-') within group(order by aa.order_no) || 
+            listagg(to_char(aa.line_no) || '?') within group(order by aa.order_no) as allsuccess  from IFSAPP.material_requis_line mrl
             inner join IFSAPP.ccn_mat_req_conf_path p on mrl.order_no=p.order_no and mrl.line_no=p.line_no and mrl.release_no=p.release_no and mrl.line_item_no=p.line_item_no
             left join IFSAPP.PURCH_AUTHORIZE_GROUP_LINE g on p.authorize_group_id=g.authorize_group_id and IFSAPP.site_api.Get_Company(mrl.contract)=g.company
             inner join IFSAPP.purchase_part pp on mrl.contract=pp.contract and mrl.part_no=pp.part_no
+            inner join IFSAPP.Ccn_Mat_Req_Conf_Path_Ext aa on aa.order_no = mrl.order_no  and aa.authorize_group_id = p.authorize_group_id
             where 
             p.step = (SELECT MIN(C.STEP)
                         FROM IFSAPP.Ccn_Mat_Req_Conf_Path_Ext C
@@ -252,34 +253,46 @@ namespace ifs9webapp.Controllers
                          AND C.LINE_ITEM_NO = p.LINE_ITEM_NO
                          AND C.approver IS NULL
                          AND C.rejected_by IS NULL)
-            AND (mrl.CONFIRMATION_STATE LIKE 'K%' OR mrl.CONFIRMATION_STATE = 'Onaylanacak')
-            AND mrl.order_no='" + id + "' and nvl(g.authorize_id,p.authorize_id)='" +loginName + "'";
+           AND (mrl.CONFIRMATION_STATE LIKE 'K%' OR mrl.CONFIRMATION_STATE = 'Onaylanacak')
+           AND mrl.order_no='" + id + "' and nvl(g.authorize_id,p.authorize_id)='" +loginName + "'"+ "GROUP BY mrl.PART_NO,"+
+           "pp.description, mrl.qty_due,mrl.unit_meas,mrl.order_no,mrl.line_no,mrl.release_no,mrl.line_item_no,mrl.order_class_db,"+
+           "p.rule,p.step,mrl.activity_seq || '-' ||IFSAPP.activity_api.Get_Description(mrl.activity_seq) , mrl.contract || '-' ||"+
+           "IFSAPP.activity_api.Get_Sub_Project_Id(mrl.activity_seq) || '-' ||IFSAPP.activity_api.Get_Sub_Project_Description(mrl.activity_seq),"+
+           "mrl.note_text,p.objid,p.objversion";
            
+            
+
             var rCon = ac.openConnection(ac.oracleConnection(loginName, password));
             oda = new OracleDataAdapter(query, rCon);
             ds = new DataSet();
             oda.Fill(ds);
-
             DataTable table = ds.Tables[0];
             ViewBag.list = setTableMatReqToList(mr, table);
+
             ac.closeConnection(rCon);
             return View();
         }
         [HttpPost]
         public IActionResult MaterialRequest(string orderno,string lineno,bool success,
         string releaseno,int lineitemno,string orderclassdb,string rule,int step,
-        int quantity,string objid,string objversion,int qtydue,string rednote)
+        int quantity,string objid,string objversion,int qtydue,string rednote,int listcount,
+        string allsuccess,bool allapprove)
         {
             ac = new AccountController();
-
 
             string loginName = HttpContext.Session.GetString("kullaniciAdi");
             string password = HttpContext.Session.GetString("kullaniciParola");
 
             bool check_error = quantity > qtydue ? check_error = true : check_error = false;
+            if (allapprove)
+            {
+                string[] rparam = allsuccess.Split('/');
+                string[] sparam = allsuccess.Split('-');
+                string[] lparam = allsuccess.Split('?');
+            }
             if (!check_error)
             {
-                string OraApi = success ? quantity == 0 ? @"DECLARE
+                string OraApi = !allapprove ? success ? quantity == 0 ? @"DECLARE
                                p0_ VARCHAR2(32000) := '" + orderno + "';" +
                                "p1_ VARCHAR2(32000) := '" + lineno + "';" +
                                "p2_ VARCHAR2(32000) := '" + releaseno + "';" +
@@ -327,13 +340,28 @@ namespace ifs9webapp.Controllers
                             "IFSAPP.Ccn_Mat_Req_Conf_Path_Api.MODIFY__( p0_ , p1_ , p2_ , p3_ , p4_ ); " +
                             "IFSAPP.Ccn_Mat_Req_Conf_Path_Api.Reject( p5_ ,  p6_ ,  p7_ ,  p8_ ,  p9_ ,  p10_ ,  p11_ ,  p12_ ); " +
                             "commit; " +
+                            "END;":@"DECLARE
+                               p0_ VARCHAR2(32000) := '" + orderno + "';" +
+                               "p1_ VARCHAR2(32000) := '" + lineno + "';" +
+                               "p2_ VARCHAR2(32000) := '" + releaseno + "';" +
+                               "p3_ FLOAT := " + lineitemno + ";" +
+                               "p4_ VARCHAR2(32000) := '" + orderclassdb + "';" +
+                               "p5_ VARCHAR2(32000) := '" + rule + "';" +
+                               "p6_ FLOAT := " + step + ";" +
+                               "p7_ FLOAT := NULL;" +
+                            "BEGIN " +
+                            "IFSAPP.Ccn_Mat_Req_Conf_Path_Api.Approve( p0_ ,  p1_ ,  p2_ ,  p3_ ,  p4_ ,  p5_ ,  p6_ ,  p7_ ); " +
+                            "commit; " +
                             "END;";
 
                 var rCon = ac.openConnection(ac.oracleConnection(loginName, password));
                 cmd = rCon.CreateCommand();
                 cmd.CommandText = OraApi;
-                cmd.ExecuteNonQuery();
 
+                if (allapprove) {
+
+                    cmd.ExecuteNonQuery();
+                }
                 return Content("success");
             }
             else

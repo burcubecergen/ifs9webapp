@@ -65,19 +65,10 @@ namespace ifs9webapp.Controllers
 
             return View();
         }
-        private IActionResult GoToReturnUrl(string returnUrl)
-        {
-            string loginName = HttpContext.Session.GetString("kullaniciAdi");
-
-            if (Url.IsLocalUrl(returnUrl))    
-            return Redirect(returnUrl);
-            
-
-            return RedirectToAction("Ifs", "Home",new { loginname = loginName });
-        }
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel lvm, string returnUrl)
+        public IActionResult Login(LoginViewModel lvm)
         {
             
             if (!String.IsNullOrEmpty(lvm.LoginName) && !String.IsNullOrEmpty(lvm.Password)) {
@@ -88,23 +79,19 @@ namespace ifs9webapp.Controllers
                 var rCon = openConnection(oracleConnection(loginName, lvm.Password));
                 if (rCon != null)
                 {
-                   
-                    List<Claim> claims = new List<Claim>();
 
-                    claims.Add(new Claim(ClaimTypes.Name, loginName));
+                    var claims = new List<Claim>();
+                    claims.Add(new Claim(ClaimTypes.Name, lvm.LoginName));
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+                    var props = new AuthenticationProperties();
+                    props.IsPersistent = lvm.RememberMe;
+                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
+                    string loginName = HttpContext.Session.GetString("kullaniciAdi");
 
-                    var userIdentity = new ClaimsIdentity(claims, "login");
-                    var userPrincipal = new ClaimsPrincipal(userIdentity);
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,userPrincipal,
-                    new AuthenticationProperties
-                    {
-                        IsPersistent = lvm.RememberMe
-                    });
-                
                     closeConnection(rCon);
 
-                    return GoToReturnUrl(returnUrl);
+                    return RedirectToAction("Ifs", "Home", new { loginname = loginName });
                 }
                 else
                 return RedirectToAction("Login", "Account", new { error = true });
@@ -112,9 +99,9 @@ namespace ifs9webapp.Controllers
             else
             return RedirectToAction("Login", "Account", new { error = true });
         }
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
-            await HttpContext.SignOutAsync();
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction(nameof(Login));
         }
 
